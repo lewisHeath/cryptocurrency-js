@@ -46,6 +46,7 @@ class Blockchain {
     minePendingTransactions(miningRewardAddress) {
         this.addTransaction(new Transaction(null, miningRewardAddress, this.miningReward));
         const block = this.addBlock(this.pendingTransactions);
+        this.pendingTransactions = [];
         return block;
     }
 
@@ -84,6 +85,17 @@ class Blockchain {
             }
         }
         return balance;
+    }
+
+    checkIfAddressExists(address) {
+        for (const block of this.chain) {
+            for (const transaction of block.data) {
+                if (transaction.fromAddress === address || transaction.toAddress === address) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
 

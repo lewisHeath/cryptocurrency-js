@@ -39,6 +39,21 @@ app.post('/mine', (req, res) => {
     });
 });
 
+app.get('/balance', (req, res) => {
+    let address = req.body.address;
+    if (blockchain.checkIfAddressExists(address)) {
+        let balance = blockchain.getWalletBalance(address);
+        res.send({
+            message: 'Balance retrieved successfully.',
+            balance: balance
+        });
+    } else {
+        res.send({
+            message: 'Address does not exist.'
+        });
+    }
+})
+
 // run the server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
