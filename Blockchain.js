@@ -97,6 +97,7 @@ class Blockchain {
         }
         return false;
     }
+
 }
 
 module.exports = Blockchain;

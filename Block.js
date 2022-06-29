@@ -23,10 +23,13 @@ class Block {
     }
 
     mineBlock(difficulty) {
+        console.log('Mining block...');
         while (this.hash.substring(0, difficulty) !== Array(difficulty + 1).join('0')) {
             this.nonce++;
             this.hash = this.calculateHash();
             // console.log(this.hash);
+            process.stdout.write('\r' + this.hash);
+            process.stdout.write('\r');
         }
         // print the hash but the 0's in green
         console.log(`Block mined: \x1b[92m${this.hash.substring(0, difficulty)}\x1b[0m${this.hash.substring(difficulty)}`);

@@ -39,6 +39,7 @@ app.post('/mine', (req, res) => {
     });
 });
 
+//get balance of address
 app.get('/balance', (req, res) => {
     let address = req.body.address;
     if (blockchain.checkIfAddressExists(address)) {
@@ -52,9 +53,17 @@ app.get('/balance', (req, res) => {
             message: 'Address does not exist.'
         });
     }
-})
+});
+
+//get mempool
+app.get('/mempool', (req, res) => {
+    res.send({
+        message: 'Mempool retrieved successfully.',
+        mempool: blockchain.getPendingTransactions()
+    });
+});
 
 // run the server
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    // console.log(`Server is running on port ${PORT}`);
 });
