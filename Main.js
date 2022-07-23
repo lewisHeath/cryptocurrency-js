@@ -4,7 +4,7 @@ const blockchain = new Blockchain();
 const Transaction = require('./Transaction');
 
 // express API
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8000;
 const express = require('express');
 const app = express();
 app.use(express.json());
@@ -31,7 +31,7 @@ app.post('/transaction', (req, res) => {
 });
 
 // mine a new block
-app.post('/mine', (req, res) => {
+app.get('/mine', (req, res) => {
     const block = blockchain.minePendingTransactions('x');
     res.send({
         message: 'Block added successfully.',
