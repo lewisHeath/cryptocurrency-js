@@ -1,10 +1,15 @@
+// Get arguments from command line
+const args = process.argv.slice(2);
+const inputPort = args[0];
+const ip = 'localhost';
+
 // Blockchain API
 const Blockchain = require('./Blockchain');
-const blockchain = new Blockchain();
+const blockchain = new Blockchain(ip, inputPort);
 const Transaction = require('./Transaction');
 
 // express API
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || inputPort;
 const express = require('express');
 const app = express();
 app.use(express.json());
@@ -63,7 +68,43 @@ app.get('/mempool', (req, res) => {
     });
 });
 
+//connect nodes
+app.post('/connect', (req, res) => {
+    let nodeIp = req.body.ip;
+    let port = req.body.port;
+    let chain = req.body.chain;
+    if (blockchain.validateChain(chain)) {
+        blockchain.chain = chain;
+    }
+    blockchain.addNode(nodeIp, port);
+    res.send({
+        message: 'Node added successfully.'
+    });
+});
+
+//validate block mined by other node
+app.post('/mined', (req, res) => {
+    let chain = req.body.chain;
+    if (blockchain.validateChain(chain)) {
+        if(chain.length > blockchain.chain.length) {
+            blockchain.chain = chain;
+            res.send({
+                message: 'Blockchain updated successfully.'
+            });
+        }
+        else {
+            res.send({
+                message: 'Blockchain is already up to date.'
+            });
+        }
+    } else {
+        res.send({
+            message: 'Block not valid.'
+        });
+    }
+})
+
 // run the server
 app.listen(PORT, () => {
-    // console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
