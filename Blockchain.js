@@ -2,8 +2,8 @@
 
 const Block = require('./Block');
 const Transaction = require('./Transaction');
-//axios
-const axios = require('axios');
+const crypto = require('crypto');
+
 
 class Blockchain {
     constructor(ip, port) {
@@ -12,7 +12,7 @@ class Blockchain {
         this.chain = [];
         this.pendingTransactions = [];
         this.miningReward = 100;
-        this.miningDifficulty = 5;
+        this.miningDifficulty = 4;
         this.addGenesisBlock();
         this.nodes = [];
         this.initialNodeConnections();
@@ -79,17 +79,36 @@ class Blockchain {
         return this.pendingTransactions;
     }
 
+    calculateBlocksHash(block) {
+        let toBeHashed = block.index + block.previousHash + block.timestamp + JSON.stringify(block.data) + block.nonce.toString();
+        return crypto.createHash('sha256').update(toBeHashed).digest('hex');
+    }
+
     validateChain() {
+        // check if the chain is valid
         for (let i = 1; i < this.chain.length; i++) {
             const currentBlock = this.chain[i];
             const previousBlock = this.chain[i - 1];
-            if (currentBlock.hash !== currentBlock.calculateHash()) {
+            if (currentBlock.hash !== this.calculateBlocksHash(currentBlock)) {
                 return false;
             }
             if (currentBlock.previousHash !== previousBlock.hash) {
                 return false;
             }
         }
+
+        //use array function to loop through the chain and check if the hash is valid
+        // this.chain.reduce((previousBlock, currentBlock) => {
+        //     console.log(previousBlock, currentBlock);
+        //     if (currentBlock.hash !== currentBlock.calculateHash()) {
+        //         return false;
+        //     }
+        //     if (currentBlock.previousHash !== previousBlock.hash) {
+        //         return false;
+        //     }
+        //     return currentBlock;
+        // });
+
         return true;
     }
 
@@ -124,8 +143,6 @@ class Blockchain {
         if (!this.nodes.includes(`http://${ip}:${port}`)) {
             //connect back to them
             this.connectToNode(`${ip}:${port}`);
-            //add the node to the list of nodes
-            this.nodes.push(`http://${ip}:${port}`);
         } 
     }
 
@@ -156,7 +173,10 @@ class Blockchain {
 
     connectToFirstNodes(nodes) {
         for (const node of nodes) {
-            this.connectToNode(node);
+            // if the node is not this node
+            if (node !== `${this.ip}:${this.port}`) {
+                this.connectToNode(node);
+            }
         }
     }
 
@@ -180,13 +200,17 @@ class Blockchain {
             this.nodes.push(`http://${nodeUrl}`);
         }
 
-        const res2 = await fetch(`http://${nodeUrl}/chain`);
+        const res2 = await fetch(`http://${nodeUrl}/`);
         if (res2.status === 200) {
             const chain = await res2.json();
             if (chain.length > this.chain.length) {
                 this.chain = chain;
             }
         }
+    }
+
+    getNodes() {
+        return this.nodes;
     }
 
 }

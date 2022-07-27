@@ -17,6 +17,8 @@ app.post('/nodes', (req, res) => {
     let ip = req.body.ip;
     let port = req.body.port;
     let node = ip + ':' + port;
+    
+    // check if the node is already in the list
     if (nodes.indexOf(node) === -1) {
         nodes.push(node);
     }

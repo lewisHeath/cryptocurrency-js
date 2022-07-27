@@ -73,7 +73,7 @@ app.post('/connect', (req, res) => {
     let nodeIp = req.body.ip;
     let port = req.body.port;
     let chain = req.body.chain;
-    if (blockchain.validateChain(chain)) {
+    if (blockchain.validateChain(chain) && blockchain.chain.length < chain.length) {
         blockchain.chain = chain;
     }
     blockchain.addNode(nodeIp, port);
@@ -103,6 +103,16 @@ app.post('/mined', (req, res) => {
         });
     }
 })
+
+//get all connected nodes
+app.get('/nodes', (req, res) => {
+    res.send(blockchain.getNodes());
+});
+
+//TEST 
+app.get('/validate', (req, res) => {
+    res.send(blockchain.validateChain(blockchain.chain));
+});
 
 // run the server
 app.listen(PORT, () => {
